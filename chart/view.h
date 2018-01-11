@@ -36,7 +36,7 @@
 #include <QtCharts/QLineSeries>
 #include "roundarray.h"
 
-#define     MAX_RANGE   128
+#define     MAX_RANGE   256
 
 QT_BEGIN_NAMESPACE
 class QGraphicsScene;
