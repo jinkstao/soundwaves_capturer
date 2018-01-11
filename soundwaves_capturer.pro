@@ -26,11 +26,13 @@ DEFINES += QT_DEPRECATED_WARNINGS
 SOURCES += \
         main.cpp \
         mainwindow.cpp \
-    chart/view.cpp
+    chart/view.cpp \
+    roundarray.cpp
 
 HEADERS += \
         mainwindow.h \
-    chart/view.h
+    chart/view.h \
+    roundarray.h
 
 FORMS += \
         mainwindow.ui

@@ -80,7 +80,7 @@ void MainWindow::NormalConvolute(QList<qfloat16> *result,
         {
             if(nSeq > nRes - len2 && nSeq <= nRes)
             {
-                (*result)[nRes] += (*seq1)[nSeq] * (*seq2)[nRes - nSeq];
+                (*result)[nRes] += seq1->at(nSeq) * seq2->at(nRes - nSeq);
             }
         }
     }

@@ -112,7 +112,7 @@ void View::appendData(QList<qfloat16> *values)
     for(int i = 0; i < MAX_RANGE * 2 - 1; ++i) {
         if(values->size() > i)
         {
-            m_series->append(i, (*values)[values->size() - i - 1]);
+            m_series->append(i, values->at(values->size() - i - 1));
         }
         else
         {

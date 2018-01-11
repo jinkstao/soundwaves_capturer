@@ -23,7 +23,6 @@ public:
 private:
     Ui::MainWindow *ui;
     QTimer *m_pRefresher;
-    QList<qreal> m_Data;
     int m_nRefreshCount = 0;
     QList<qfloat16> m_gActualEmitData;
     QList<qfloat16> m_gConvolutionData;
