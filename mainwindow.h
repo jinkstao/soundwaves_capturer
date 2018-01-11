@@ -7,6 +7,7 @@
 #include <QFloat16>
 #include <QMainWindow>
 #include "chart/view.h"
+#include "roundarray.h"
 
 namespace Ui {
 class MainWindow;
@@ -24,15 +25,13 @@ private:
     Ui::MainWindow *ui;
     QTimer *m_pRefresher;
     int m_nRefreshCount = 0;
-    QList<qfloat16> m_gActualEmitData;
-    QList<qfloat16> m_gConvolutionData;
+    RoundArray<qfloat16> *m_gActualEmitData;
+    RoundArray<qfloat16> *m_gConvolutionData;
 
     qfloat16 OriginEmitFun(qfloat16 x);
     qfloat16 NoiseFun();
 
-    bool AllZero(QList<qfloat16> *list);
-
-    void NormalConvolute(QList<qfloat16>*, const QList<qfloat16>*, const QList<qfloat16>*);
+    void NormalConvolute(RoundArray<qfloat16>*, RoundArray<qfloat16>*, RoundArray<qfloat16>*);
 
 private slots:
     void RefreshData();

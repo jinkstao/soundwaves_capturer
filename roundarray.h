@@ -1,19 +1,20 @@
 #ifndef ROUNDARRAY_H
 #define ROUNDARRAY_H
 
-template<typename T>
-class RoundArray
+template<class T> class RoundArray
 {
 private:
     T *m_pArray;
-    unsigned long m_nMaxSize;
-    unsigned long m_nCurSize;
-    unsigned long m_nHeadPos;
+    int m_nMaxSize;
+    int m_nCurSize;
+    int m_nHeadPos;
 public:
-    RoundArray(unsigned long nMaxSize);
+    RoundArray(int nMaxSize);
     ~RoundArray();
+    int size();
     RoundArray<T> &append(T value);
-    inline T &operator[](unsigned long i);
+    T &operator[](int i);
+    T &at(int i);
 };
 
 #endif // ROUNDARRAY_H

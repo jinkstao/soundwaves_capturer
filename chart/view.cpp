@@ -36,6 +36,7 @@
 #include <QtWidgets/QGraphicsTextItem>
 #include <QtGui/QMouseEvent>
 #include <QDebug>
+#include "roundarray.cpp"
 
 View::View(QWidget *parent)
     : QGraphicsView(new QGraphicsScene, parent),
@@ -65,7 +66,7 @@ View::View(QWidget *parent)
 //    m_series->attachAxis(axisX);
 //    m_series->attachAxis(axisY);
 
-    m_series->setPen(QPen(Qt::green, 1));
+    m_series->setPen(QPen(Qt::green, 0.8));
 
     m_chart->setAcceptHoverEvents(true);
 
@@ -106,7 +107,7 @@ void View::appendData(qfloat16 value)
     }
 }
 
-void View::appendData(QList<qfloat16> *values)
+void View::appendData(RoundArray<qfloat16> *values)
 {
     m_series->clear();
     for(int i = 0; i < MAX_RANGE * 2 - 1; ++i) {

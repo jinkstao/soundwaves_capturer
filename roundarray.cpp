@@ -1,22 +1,29 @@
 #include <stdlib.h>
 #include "roundarray.h"
 
-template<typename T>
-RoundArray<T>::RoundArray(unsigned long nMaxSize)
+template<class T>
+RoundArray<T>::RoundArray(int nMaxSize)
 {
     m_nMaxSize = nMaxSize;
-    m_pArray = (T*)calloc(m_nMaxSize, sizeof(T));
+    m_nCurSize = 0;
     m_nHeadPos = 0;
+    m_pArray = (T*)calloc(m_nMaxSize, sizeof(T));
 }
 
-template<typename T>
+template<class T>
 RoundArray<T>::~RoundArray()
 {
     free(m_pArray);
     m_pArray = nullptr;
 }
 
-template<typename T>
+template<class T>
+int RoundArray<T>::size()
+{
+    return m_nCurSize;
+}
+
+template<class T>
 RoundArray<T> &RoundArray<T>::append(T value)
 {
     if(m_nCurSize < m_nMaxSize)
@@ -39,16 +46,27 @@ RoundArray<T> &RoundArray<T>::append(T value)
             ++m_nHeadPos;
         }
         // 将数据存入头部指示器前一个位置
-        unsigned long nTailPos = m_nHeadPos > 0 ? m_nHeadPos - 1 : m_nMaxSize - 1;
+        int nTailPos = m_nHeadPos > 0 ? m_nHeadPos - 1 : m_nMaxSize - 1;
         *(m_pArray + nTailPos) = value;
     }
-    return this;
+    return *this;
 }
 
-template <typename T>
-inline T &RoundArray<T>::operator[](unsigned long i)
+template <class T>
+T &RoundArray<T>::operator[](int i)
 {
-    unsigned long nCalPos = m_nHeadPos + i;
+    int nCalPos = m_nHeadPos + i;
+    if(nCalPos > m_nMaxSize - 1)
+    {
+        nCalPos -= m_nMaxSize;
+    }
+    return *(m_pArray + nCalPos);
+}
+
+template <class T>
+T &RoundArray<T>::at(int i)
+{
+    int nCalPos = m_nHeadPos + i;
     if(nCalPos > m_nMaxSize - 1)
     {
         nCalPos -= m_nMaxSize;

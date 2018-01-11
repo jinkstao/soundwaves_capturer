@@ -34,8 +34,9 @@
 #include <QtWidgets/QGraphicsView>
 #include <QtCharts/QChartGlobal>
 #include <QtCharts/QLineSeries>
+#include "roundarray.h"
 
-#define     MAX_RANGE   256
+#define     MAX_RANGE   128
 
 QT_BEGIN_NAMESPACE
 class QGraphicsScene;
@@ -60,7 +61,7 @@ public:
     QChart *chart();
     QLineSeries *series();
     void appendData(qfloat16 value);
-    void appendData(QList<qfloat16> *values);
+    void appendData(RoundArray<qfloat16> *values);
 
 protected:
     void resizeEvent(QResizeEvent *event);
