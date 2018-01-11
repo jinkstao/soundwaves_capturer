@@ -60,6 +60,7 @@ public:
     QChart *chart();
     QLineSeries *series();
     void appendData(qfloat16 value);
+    void appendData(QList<qfloat16> *values);
 
 protected:
     void resizeEvent(QResizeEvent *event);

@@ -22,13 +22,16 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->chtOriginEmit->chart()->setTitle("原始发射波形");
     ui->chtNoise->chart()->setTitle("噪声波形");
     ui->chtActualEmit->chart()->setTitle("叠加发射波形");
+    ui->chtConvolution->chart()->setTitle("卷积波形");
+    ui->chtConvolution->chart()->axisX()->setRange(0, MAX_RANGE * 2 - 1);
+    ui->chtConvolution->chart()->axisY()->setRange(-3000, 3000);
 
-//    // 初始化链表
-//    for(int i = 0; i < MAX_RANGE; ++i)
-//    {
+    // 初始化链表
+    for(int i = 0; i < MAX_RANGE * 2 - 1; ++i)
+    {
 //        m_gActualEmitData.append(0.0f);
-//        m_gConvolutionData.append(0.0f);
-//    }
+        m_gConvolutionData.append(0.0f);
+    }
 
     // 初始化刷新器
     m_pRefresher->setInterval(10);
@@ -43,13 +46,44 @@ MainWindow::~MainWindow()
 
 qfloat16 MainWindow::OriginEmitFun(qfloat16 x)
 {
-    return 5 * qSin(x * PI / 64);
+    return 5 * qSin(x * PI * 4 / MAX_RANGE);
 }
 
 qfloat16 MainWindow::NoiseFun()
 {
     //qsrand(QTime(0,0,0).secsTo(QTime::currentTime()));
     return 10.0 * qrand() / (qfloat16)RAND_MAX - 5.0;
+}
+
+bool MainWindow::AllZero(QList<qfloat16> *list)
+{
+    foreach (qfloat16 value, *list) {
+        if(value != 0.0)
+        {
+            return false;
+        }
+    }
+    return true;
+}
+
+void MainWindow::NormalConvolute(QList<qfloat16> *result,
+                                 const QList<qfloat16> *seq1,
+                                 const QList<qfloat16> *seq2)
+{
+    int len1 = seq1->size();
+    int len2 = seq2->size();
+    int resultLen = len1 + len2 - 1;
+    for(int nRes = 0; nRes < resultLen; ++nRes)
+    {
+        (*result)[nRes] = 0.0f;
+        for(int nSeq = 0; nSeq < len1; ++nSeq)
+        {
+            if(nSeq > nRes - len2 && nSeq <= nRes)
+            {
+                (*result)[nRes] += (*seq1)[nSeq] * (*seq2)[nRes - nSeq];
+            }
+        }
+    }
 }
 
 void MainWindow::RefreshData()
@@ -66,10 +100,14 @@ void MainWindow::RefreshData()
     ui->chtNoise->appendData(nNoiseValue);
     qfloat16 nActualEmitValue = nOriginEmitValue + nNoiseValue;
     ui->chtActualEmit->appendData(nActualEmitValue);
-//    // 插入链表
-//    m_gActualEmitData.append(nActualEmitValue);
-//    if(m_gActualEmitData.size() > MAX_RANGE)
-//    {
-//        m_gActualEmitData.removeFirst();
-//    }
+    // 插入链表
+    m_gActualEmitData.append(nActualEmitValue);
+    if(m_gActualEmitData.size() > MAX_RANGE)
+    {
+        m_gActualEmitData.removeFirst();
+    }
+
+    // 计算卷积
+    NormalConvolute(&m_gConvolutionData, &m_gActualEmitData, &m_gActualEmitData);
+    ui->chtConvolution->appendData(&m_gConvolutionData);
 }

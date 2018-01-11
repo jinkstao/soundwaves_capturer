@@ -50,20 +50,22 @@ View::View(QWidget *parent)
     m_chart = new QChart;
     m_chart->legend()->hide();
     m_chart->addSeries(m_series);
+    m_chart->setTheme(QChart::ChartThemeDark);
     // 坐标轴初始化
-    QValueAxis *axisX = new QValueAxis(m_chart);
-    QValueAxis *axisY = new QValueAxis(m_chart);
+    m_chart->createDefaultAxes();
+    auto *axisX = m_chart->axisX();
+    auto *axisY = m_chart->axisY();
     axisX->setRange(0, MAX_RANGE);
-//    axisX->setTitleText("温度/℃");
-    axisX->setLabelFormat("%d");
+//    axisX->setLabelFormat("%d");
     axisY->setRange(-10, 10);
-//    axisY->setTitleText("声速/(m/s)");
-    axisY->setLabelFormat("%d");
+//    axisY->setLabelFormat("%d");
 
-    m_chart->addAxis(axisX, Qt::AlignBottom);
-    m_chart->addAxis(axisY, Qt::AlignLeft);
-    m_series->attachAxis(axisX);
-    m_series->attachAxis(axisY);
+//    m_chart->addAxis(axisX, Qt::AlignBottom);
+//    m_chart->addAxis(axisY, Qt::AlignLeft);
+//    m_series->attachAxis(axisX);
+//    m_series->attachAxis(axisY);
+
+    m_series->setPen(QPen(Qt::green, 1));
 
     m_chart->setAcceptHoverEvents(true);
 
@@ -96,6 +98,21 @@ void View::appendData(qfloat16 value)
         if(m_gData.size() > i)
         {
             m_series->append(i, *(x--));
+        }
+        else
+        {
+            m_series->append(i, 0.0);
+        }
+    }
+}
+
+void View::appendData(QList<qfloat16> *values)
+{
+    m_series->clear();
+    for(int i = 0; i < MAX_RANGE * 2 - 1; ++i) {
+        if(values->size() > i)
+        {
+            m_series->append(i, (*values)[values->size() - i - 1]);
         }
         else
         {

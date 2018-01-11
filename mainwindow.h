@@ -25,11 +25,15 @@ private:
     QTimer *m_pRefresher;
     QList<qreal> m_Data;
     int m_nRefreshCount = 0;
-    QLinkedList<qfloat16> m_gActualEmitData;
-    QLinkedList<qfloat16> m_gConvolutionData;
+    QList<qfloat16> m_gActualEmitData;
+    QList<qfloat16> m_gConvolutionData;
 
     qfloat16 OriginEmitFun(qfloat16 x);
     qfloat16 NoiseFun();
+
+    bool AllZero(QList<qfloat16> *list);
+
+    void NormalConvolute(QList<qfloat16>*, const QList<qfloat16>*, const QList<qfloat16>*);
 
 private slots:
     void RefreshData();
