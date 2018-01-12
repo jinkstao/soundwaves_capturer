@@ -20,7 +20,10 @@ RoundArray<T>::~RoundArray()
 template<class T>
 int RoundArray<T>::size()
 {
-    return m_nCurSize;
+    m_Locker.lock();
+    int nRet = m_nCurSize;
+    m_Locker.unlock();
+    return nRet;
 }
 
 template<class T>
@@ -29,11 +32,14 @@ RoundArray<T> &RoundArray<T>::append(T value)
     if(m_nCurSize < m_nMaxSize)
     {
         // 正常存数据
+        m_Locker.lock();
         *(m_pArray + m_nCurSize) = value;
         ++m_nCurSize;
+        m_Locker.unlock();
     }
     else
     {
+        m_Locker.lock();
         // 移动头部指示器，将后来数据覆盖之前的数据
         if(m_nHeadPos >= m_nMaxSize - 1)
         {
@@ -48,6 +54,7 @@ RoundArray<T> &RoundArray<T>::append(T value)
         // 将数据存入头部指示器前一个位置
         int nTailPos = m_nHeadPos > 0 ? m_nHeadPos - 1 : m_nMaxSize - 1;
         *(m_pArray + nTailPos) = value;
+        m_Locker.unlock();
     }
     return *this;
 }
@@ -55,21 +62,27 @@ RoundArray<T> &RoundArray<T>::append(T value)
 template <class T>
 T &RoundArray<T>::operator[](int i)
 {
+    m_Locker.lock();
     int nCalPos = m_nHeadPos + i;
     if(nCalPos > m_nMaxSize - 1)
     {
         nCalPos -= m_nMaxSize;
     }
-    return *(m_pArray + nCalPos);
+    T *ret = m_pArray + nCalPos;
+    m_Locker.unlock();
+    return *ret;
 }
 
 template <class T>
 T &RoundArray<T>::at(int i)
 {
+    m_Locker.lock();
     int nCalPos = m_nHeadPos + i;
     if(nCalPos > m_nMaxSize - 1)
     {
         nCalPos -= m_nMaxSize;
     }
-    return *(m_pArray + nCalPos);
+    T *ret = m_pArray + nCalPos;
+    m_Locker.unlock();
+    return *ret;
 }

@@ -1,5 +1,6 @@
 #ifndef ROUNDARRAY_H
 #define ROUNDARRAY_H
+#include <QMutex>
 
 template<class T> class RoundArray
 {
@@ -8,6 +9,7 @@ private:
     int m_nMaxSize;
     int m_nCurSize;
     int m_nHeadPos;
+    QMutex m_Locker;
 public:
     RoundArray(int nMaxSize);
     ~RoundArray();

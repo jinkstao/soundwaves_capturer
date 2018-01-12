@@ -27,12 +27,14 @@ SOURCES += \
         main.cpp \
         mainwindow.cpp \
     chart/view.cpp \
-    roundarray.cpp
+    roundarray.cpp \
+    convolution_calculator.cpp
 
 HEADERS += \
         mainwindow.h \
     chart/view.h \
-    roundarray.h
+    roundarray.h \
+    convolution_calculator.h
 
 FORMS += \
         mainwindow.ui

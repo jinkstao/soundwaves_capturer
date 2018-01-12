@@ -40,6 +40,7 @@
 
 View::View(QWidget *parent)
     : QGraphicsView(new QGraphicsScene, parent),
+      m_pData(new RoundArray<qfloat16>(MAX_RANGE)),
       m_chart(0),
       m_series(new QLineSeries(this))
 {
@@ -76,6 +77,11 @@ View::View(QWidget *parent)
     this->setMouseTracking(true);
 }
 
+View::~View()
+{
+    delete m_pData;
+}
+
 QChart *View::chart()
 {
     return m_chart;
@@ -88,23 +94,11 @@ QLineSeries *View::series()
 
 void View::appendData(qfloat16 value)
 {
-    m_gData.append(value);
-    if(m_gData.size() > MAX_RANGE)
-    {
-        m_gData.removeFirst();
-    }
-    m_series->clear();
-    QLinkedList<qfloat16>::const_iterator x = m_gData.constEnd();
-    for(int i = 0; i < MAX_RANGE; ++i) {
-        if(m_gData.size() > i)
-        {
-            m_series->append(i, *(x--));
-        }
-        else
-        {
-            m_series->append(i, 0.0);
-        }
-    }
+    m_pData->append(value);
+//    if(m_pData->size() > MAX_RANGE)
+//    {
+//        m_pData->removeFirst();
+//    }
 }
 
 void View::appendData(RoundArray<qfloat16> *values)
@@ -114,6 +108,21 @@ void View::appendData(RoundArray<qfloat16> *values)
         if(values->size() > i)
         {
             m_series->append(i, values->at(values->size() - i - 1));
+        }
+        else
+        {
+            m_series->append(i, 0.0);
+        }
+    }
+}
+
+void View::refresh()
+{
+    m_series->clear();
+    for(int i = 0; i < MAX_RANGE; ++i) {
+        if(m_pData->size() > i)
+        {
+            m_series->append(i, m_pData->at(m_pData->size() - i - 1));
         }
         else
         {

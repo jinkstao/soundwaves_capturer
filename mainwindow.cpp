@@ -1,22 +1,26 @@
 #include <QtCharts/QChart>
 #include <QtCharts/QSplineSeries>
+#include <QObject>
 #include <QtMath>
 #include <QTime>
 #include <QDebug>
 
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
-
 #include "roundarray.cpp"
 
-#define     PI      3.1415926536
+#define     PI              3.1415926536
+#define     DOT_COUNT       16
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::MainWindow),
     m_pRefresher(new QTimer(this)),
     m_gActualEmitData(new RoundArray<qfloat16>(MAX_RANGE)),
-    m_gConvolutionData(new RoundArray<qfloat16>(MAX_RANGE * 2 - 1))
+    m_gConvolutionData(new RoundArray<qfloat16>(MAX_RANGE * 2 - 1)),
+    m_gConvolutionDrawData(new RoundArray<qfloat16>(MAX_RANGE * 2 - 1)),
+    m_tWorkThread(new QThread()),
+    m_pCalculator(new ConvolutionCalculator())
 {
     ui->setupUi(this);
     // 初始化Charts
@@ -32,10 +36,18 @@ MainWindow::MainWindow(QWidget *parent) :
     {
 //        m_gActualEmitData.append(0.0f);
         m_gConvolutionData->append(0.0f);
+        m_gConvolutionDrawData->append(0.0f);
     }
 
+    // 初始化计算线程
+    m_pCalculator->moveToThread(m_tWorkThread);
+    connect(m_tWorkThread, &QThread::finished, m_pCalculator, &QObject::deleteLater);
+    connect(this, &MainWindow::startCalculate, m_pCalculator, &ConvolutionCalculator::doWork);
+    connect(m_pCalculator, &ConvolutionCalculator::resultReady, this, &MainWindow::CopyConvolutionData);
+    m_tWorkThread->start();
+
     // 初始化刷新器
-    m_pRefresher->setInterval(10);
+    m_pRefresher->setInterval(100);
     m_pRefresher->start();
     connect(m_pRefresher, &QTimer::timeout, this, &MainWindow::RefreshData);
 }
@@ -45,11 +57,13 @@ MainWindow::~MainWindow()
     delete ui;
     delete m_gActualEmitData;
     delete m_gConvolutionData;
+    m_tWorkThread->quit();
+    m_tWorkThread->wait();
 }
 
 qfloat16 MainWindow::OriginEmitFun(qfloat16 x)
 {
-    return 5 * qSin(x * PI * 4 / MAX_RANGE);
+    return 3 * qSin(x * PI * 4 / MAX_RANGE);
 }
 
 qfloat16 MainWindow::NoiseFun()
@@ -80,22 +94,37 @@ void MainWindow::NormalConvolute(RoundArray<qfloat16> *result,
 
 void MainWindow::RefreshData()
 {
-    // 模拟正弦波形
-    ++m_nRefreshCount;
-    if(m_nRefreshCount >= MAX_RANGE)
+    for(int i = 0; i < DOT_COUNT; ++i)
     {
-        m_nRefreshCount = 0;
+        // 模拟正弦波形
+        ++m_nRefreshCount;
+        if(m_nRefreshCount >= MAX_RANGE)
+        {
+            m_nRefreshCount = 0;
+        }
+        qfloat16 nOriginEmitValue = OriginEmitFun((qfloat16)m_nRefreshCount);
+        ui->chtOriginEmit->appendData(nOriginEmitValue);
+        qfloat16 nNoiseValue = NoiseFun();
+        ui->chtNoise->appendData(nNoiseValue);
+        qfloat16 nActualEmitValue = nOriginEmitValue + nNoiseValue;
+        ui->chtActualEmit->appendData(nActualEmitValue);
+        // 插入链表
+        m_gActualEmitData->append(nActualEmitValue);
     }
-    qfloat16 nOriginEmitValue = OriginEmitFun((qfloat16)m_nRefreshCount);
-    ui->chtOriginEmit->appendData(nOriginEmitValue);
-    qfloat16 nNoiseValue = NoiseFun();
-    ui->chtNoise->appendData(nNoiseValue);
-    qfloat16 nActualEmitValue = nOriginEmitValue + nNoiseValue;
-    ui->chtActualEmit->appendData(nActualEmitValue);
-    // 插入链表
-    m_gActualEmitData->append(nActualEmitValue);
 
-    // 计算卷积
-    NormalConvolute(m_gConvolutionData, m_gActualEmitData, m_gActualEmitData);
-    ui->chtConvolution->appendData(m_gConvolutionData);
+    emit startCalculate(m_gConvolutionData, m_gActualEmitData, m_gActualEmitData);
+    ui->chtOriginEmit->refresh();
+    ui->chtNoise->refresh();
+    ui->chtActualEmit->refresh();
+//    // 计算卷积
+//    NormalConvolute(m_gConvolutionData, m_gActualEmitData, m_gActualEmitData);
+    ui->chtConvolution->appendData(m_gConvolutionDrawData);
+}
+
+void MainWindow::CopyConvolutionData()
+{
+    for(int i = 0; i < MAX_RANGE * 2 - 1; ++i)
+    {
+        m_gConvolutionDrawData->at(i) = m_gConvolutionData->at(i);
+    }
 }

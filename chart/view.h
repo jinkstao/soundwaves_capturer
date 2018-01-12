@@ -58,16 +58,18 @@ class View: public QGraphicsView
 
 public:
     View(QWidget *parent = nullptr);
+    ~View();
     QChart *chart();
     QLineSeries *series();
     void appendData(qfloat16 value);
     void appendData(RoundArray<qfloat16> *values);
+    void refresh();
 
 protected:
     void resizeEvent(QResizeEvent *event);
 
 private:
-    QLinkedList<qfloat16> m_gData;
+    RoundArray<qfloat16> *m_pData;
     QChart *m_chart;
     QLineSeries *m_series;
 };
