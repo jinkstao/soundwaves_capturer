@@ -36,7 +36,9 @@
 #include <QtCharts/QLineSeries>
 #include "roundarray.h"
 
-#define     MAX_RANGE   256
+#define     AXISX_MAX_RANGE         256.0
+#define     SAMPLING_FREQUENCY      1.0
+#define     SAMPLING_DOT_COUNT      256
 
 QT_BEGIN_NAMESPACE
 class QGraphicsScene;

@@ -40,7 +40,7 @@
 
 View::View(QWidget *parent)
     : QGraphicsView(new QGraphicsScene, parent),
-      m_pData(new RoundArray<qfloat16>(MAX_RANGE)),
+      m_pData(new RoundArray<qfloat16>((int)(AXISX_MAX_RANGE * SAMPLING_FREQUENCY))),
       m_chart(0),
       m_series(new QLineSeries(this))
 {
@@ -57,7 +57,7 @@ View::View(QWidget *parent)
     m_chart->createDefaultAxes();
     auto *axisX = m_chart->axisX();
     auto *axisY = m_chart->axisY();
-    axisX->setRange(0, MAX_RANGE);
+    axisX->setRange(0, AXISX_MAX_RANGE);
 //    axisX->setLabelFormat("%d");
     axisY->setRange(-10, 10);
 //    axisY->setLabelFormat("%d");
@@ -104,14 +104,14 @@ void View::appendData(qfloat16 value)
 void View::appendData(RoundArray<qfloat16> *values)
 {
     m_series->clear();
-    for(int i = 0; i < MAX_RANGE * 2 - 1; ++i) {
+    for(int i = 0; i < SAMPLING_DOT_COUNT * 2 - 1; ++i) {
         if(values->size() > i)
         {
-            m_series->append(i, values->at(values->size() - i - 1));
+            m_series->append(i / SAMPLING_FREQUENCY, values->at(values->size() - i - 1));
         }
         else
         {
-            m_series->append(i, 0.0);
+            m_series->append(i / SAMPLING_FREQUENCY, 0.0);
         }
     }
 }
@@ -119,14 +119,14 @@ void View::appendData(RoundArray<qfloat16> *values)
 void View::refresh()
 {
     m_series->clear();
-    for(int i = 0; i < MAX_RANGE; ++i) {
+    for(int i = 0; i < SAMPLING_DOT_COUNT; ++i) {
         if(m_pData->size() > i)
         {
-            m_series->append(i, m_pData->at(m_pData->size() - i - 1));
+            m_series->append(i / SAMPLING_FREQUENCY, m_pData->at(m_pData->size() - i - 1));
         }
         else
         {
-            m_series->append(i, 0.0);
+            m_series->append(i / SAMPLING_FREQUENCY, 0.0);
         }
     }
 }
