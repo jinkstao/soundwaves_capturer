@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>831</width>
-    <height>551</height>
+    <height>828</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -49,6 +49,16 @@
      <rect>
       <x>420</x>
       <y>280</y>
+      <width>401</width>
+      <height>261</height>
+     </rect>
+    </property>
+   </widget>
+   <widget class="View" name="chtMaxConvolutionEmit">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>550</y>
       <width>401</width>
       <height>261</height>
      </rect>

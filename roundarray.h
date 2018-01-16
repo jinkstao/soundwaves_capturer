@@ -17,6 +17,7 @@ public:
     RoundArray<T> &append(T value);
     T &operator[](int i);
     T &at(int i);
+    T &last();
 };
 
 #endif // ROUNDARRAY_H

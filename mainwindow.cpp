@@ -19,11 +19,15 @@ MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::MainWindow),
     m_pRefresher(new QTimer(this)),
+    m_gOriginEmitData(new RoundArray<qfloat16>(CALCULATION_DOT_COUNT)),
+    m_gNoiseData(new RoundArray<qfloat16>(CALCULATION_DOT_COUNT)),
     m_gActualEmitData(new RoundArray<qfloat16>(CALCULATION_DOT_COUNT)),
     m_gConvolutionData(new RoundArray<qfloat16>(CALCULATION_DOT_COUNT * 2 - 1)),
     m_gConvolutionDrawData(new RoundArray<qfloat16>(CALCULATION_DOT_COUNT * 2 - 1)),
-    m_tWorkThread(new QThread()),
-    m_pCalculator(new ConvolutionCalculator())
+    m_tConvoluteThread(new QThread()),
+    m_tMaxCalculateThread(new QThread()),
+    m_pCalculator(new ConvolutionCalculator()),
+    m_pMaxCalculator(new MaxConvolutionCalculator())
 {
     ui->setupUi(this);
     // 初始化Charts
@@ -31,8 +35,11 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->chtNoise->chart()->setTitle("环境噪声模拟");
     ui->chtActualEmit->chart()->setTitle("叠加信号");
     ui->chtConvolution->chart()->setTitle("自相关");
+    ui->chtMaxConvolutionEmit->chart()->setTitle("最大卷积");
     ui->chtConvolution->chart()->axisX()->setRange(0, CALCULATION_DOT_COUNT * 2 - 1);
     ui->chtConvolution->chart()->axisY()->setRange(-3000, 3000);
+    ui->chtMaxConvolutionEmit->chart()->axisX()->setRange(0, CALCULATION_DOT_COUNT * 2 - 1);
+    ui->chtMaxConvolutionEmit->chart()->axisY()->setRange(-3000, 3000);
 
     // 初始化链表
     for(int i = 0; i < CALCULATION_DOT_COUNT * 2 - 1; ++i)
@@ -42,12 +49,19 @@ MainWindow::MainWindow(QWidget *parent) :
         m_gConvolutionDrawData->append(0.0f);
     }
 
-    // 初始化计算线程
-    m_pCalculator->moveToThread(m_tWorkThread);
-    connect(m_tWorkThread, &QThread::finished, m_pCalculator, &QObject::deleteLater);
+    // 初始化卷积计算线程
+    m_pCalculator->moveToThread(m_tConvoluteThread);
+    connect(m_tConvoluteThread, &QThread::finished, m_pCalculator, &QObject::deleteLater);
     connect(this, &MainWindow::startCalculate, m_pCalculator, &ConvolutionCalculator::doWork);
-    connect(m_pCalculator, &ConvolutionCalculator::resultReady, this, &MainWindow::CopyConvolutionData);
-    m_tWorkThread->start();
+//    connect(m_pCalculator, &ConvolutionCalculator::resultReady, this, &MainWindow::CopyConvolutionData);
+    m_tConvoluteThread->start();
+
+    // 初始化最大卷积计算线程
+    m_pMaxCalculator->moveToThread(m_tMaxCalculateThread);
+    connect(m_tMaxCalculateThread, &QThread::finished, m_pMaxCalculator, &QObject::deleteLater);
+    connect(this, &MainWindow::startMaxCalculate, m_pMaxCalculator, &MaxConvolutionCalculator::doWork);
+//    connect(m_pCalculator, &ConvolutionCalculator::resultReady, this, &MainWindow::CopyConvolutionData);
+    m_tMaxCalculateThread->start();
 
     // 初始化刷新器
     m_pRefresher->setInterval(FRAME_TIME_INTERVAL);
@@ -60,8 +74,8 @@ MainWindow::~MainWindow()
     delete ui;
     delete m_gActualEmitData;
     delete m_gConvolutionData;
-    m_tWorkThread->quit();
-    m_tWorkThread->wait();
+    m_tConvoluteThread->quit();
+    m_tConvoluteThread->wait();
 }
 
 qfloat16 MainWindow::OriginEmitFun(qfloat16 x)
@@ -98,6 +112,8 @@ void MainWindow::NormalConvolute(RoundArray<qfloat16> *result,
 
 void MainWindow::RefreshData()
 {
+    qfloat16 fMaxConvolution;
+    qfloat16 fMinConvolution;
     for(int i = 0; i < FRAME_DOT_COUNT; ++i)
     {
         // 模拟正弦波形
@@ -107,22 +123,27 @@ void MainWindow::RefreshData()
             m_nRefreshCount = 0;
         }
         qfloat16 nOriginEmitValue = OriginEmitFun(m_nRefreshCount / SAMPLING_FREQUENCY);
+        m_gOriginEmitData->append(nOriginEmitValue);
         ui->chtOriginEmit->appendData(nOriginEmitValue);
         qfloat16 nNoiseValue = NoiseFun();
+        m_gNoiseData->append(nNoiseValue);
         ui->chtNoise->appendData(nNoiseValue);
         qfloat16 nActualEmitValue = nOriginEmitValue + nNoiseValue;
-        ui->chtActualEmit->appendData(nActualEmitValue);
-        // 插入链表
         m_gActualEmitData->append(nActualEmitValue);
+        ui->chtActualEmit->appendData(nActualEmitValue);
     }
 
     emit startCalculate(m_gConvolutionData, m_gActualEmitData, m_gActualEmitData);
+    if(m_gConvolutionData->size() != 0)
+    {
+        emit startMaxCalculate(m_gConvolutionData, &fMaxConvolution, &fMinConvolution);
+    }
     ui->chtOriginEmit->refresh();
     ui->chtNoise->refresh();
     ui->chtActualEmit->refresh();
-//    // 计算卷积
-//    NormalConvolute(m_gConvolutionData, m_gActualEmitData, m_gActualEmitData);
-    ui->chtConvolution->appendData(m_gConvolutionDrawData);
+    ui->chtConvolution->appendData(m_gConvolutionData);
+    ui->chtMaxConvolutionEmit->appendData(fMaxConvolution);
+    ui->chtMaxConvolutionEmit->refresh();
 }
 
 void MainWindow::CopyConvolutionData()

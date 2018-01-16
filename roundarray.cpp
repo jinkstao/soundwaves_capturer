@@ -86,3 +86,9 @@ T &RoundArray<T>::at(int i)
     m_Locker.unlock();
     return *ret;
 }
+
+template <class T>
+T &RoundArray<T>::last()
+{
+    return at(m_nCurSize - 1);
+}
