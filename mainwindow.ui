@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1249</width>
-    <height>828</height>
+    <width>1241</width>
+    <height>581</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -72,6 +72,32 @@
       <width>401</width>
       <height>261</height>
      </rect>
+    </property>
+   </widget>
+   <widget class="QCheckBox" name="cbSignal">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>550</y>
+      <width>51</width>
+      <height>18</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>信号</string>
+    </property>
+   </widget>
+   <widget class="QCheckBox" name="cbNoise">
+    <property name="geometry">
+     <rect>
+      <x>80</x>
+      <y>550</y>
+      <width>51</width>
+      <height>18</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>噪声</string>
     </property>
    </widget>
   </widget>

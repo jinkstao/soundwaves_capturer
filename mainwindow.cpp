@@ -12,7 +12,7 @@
 #define     FRAME_TIME_INTERVAL     100
 #define     FRAME_DOT_COUNT         16
 #define     CALCULATION_DOT_COUNT   256
-#define     BAUD_FREQUENCY          (8 / AXISX_MAX_RANGE)
+#define     BAUD_FREQUENCY          (64 / AXISX_MAX_RANGE)
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -35,12 +35,12 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->chtActualEmit->chart()->setTitle("叠加信号");
     ui->chtFourier->chart()->setTitle("频谱");
     ui->chtConvolution->chart()->setTitle("自相关");
-    ui->chtMaxConvolutionEmit->chart()->setTitle("最大卷积");
-    ui->chtFourier->chart()->axisX()->setRange(0, CALCULATION_DOT_COUNT * 2);
+    ui->chtMaxConvolutionEmit->chart()->setTitle("卷积顶点");
+    ui->chtFourier->chart()->axisX()->setRange(0, CALCULATION_DOT_COUNT);
     ui->chtFourier->chart()->axisY()->setRange(0, 500);
     ui->chtConvolution->chart()->axisX()->setRange(0, CALCULATION_DOT_COUNT * 2);
     ui->chtConvolution->chart()->axisY()->setRange(-3000, 3000);
-    ui->chtMaxConvolutionEmit->chart()->axisX()->setRange(0, CALCULATION_DOT_COUNT * 2);
+    ui->chtMaxConvolutionEmit->chart()->axisX()->setRange(0, CALCULATION_DOT_COUNT);
     ui->chtMaxConvolutionEmit->chart()->axisY()->setRange(-3000, 3000);
 
     // 初始化链表
@@ -124,10 +124,10 @@ void MainWindow::RefreshData()
         {
             m_nRefreshCount = 0;
         }
-        float nOriginEmitValue = OriginEmitFun(m_nRefreshCount / SAMPLING_FREQUENCY);
+        float nOriginEmitValue = ui->cbSignal->isChecked() ? OriginEmitFun(m_nRefreshCount / SAMPLING_FREQUENCY) : 0.0f;
         m_gOriginEmitData->append(nOriginEmitValue);
         ui->chtOriginEmit->appendData(nOriginEmitValue);
-        float nNoiseValue = NoiseFun();
+        float nNoiseValue = ui->cbNoise->isChecked() ? NoiseFun() : 0.0f;
         m_gNoiseData->append(nNoiseValue);
         ui->chtNoise->appendData(nNoiseValue);
         float nActualEmitValue = nOriginEmitValue + nNoiseValue;
