@@ -12,7 +12,7 @@
 #define     FRAME_TIME_INTERVAL     100
 #define     FRAME_DOT_COUNT         16
 #define     CALCULATION_DOT_COUNT   256
-#define     BAUD_FREQUENCY          (64 / AXISX_MAX_RANGE)
+#define     BAUD_FREQUENCY          (32 / AXISX_MAX_RANGE)
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
