@@ -30,7 +30,6 @@
 #ifndef VIEW_H
 #define VIEW_H
 #include <QLinkedList>
-#include <QFloat16>
 #include <QtWidgets/QGraphicsView>
 #include <QtCharts/QChartGlobal>
 #include <QtCharts/QLineSeries>
@@ -63,15 +62,15 @@ public:
     ~View();
     QChart *chart();
     QLineSeries *series();
-    void appendData(qfloat16 value);
-    void appendData(RoundArray<qfloat16> *values);
+    void appendData(float value);
+    void appendData(RoundArray<float> *values);
     void refresh();
 
 protected:
     void resizeEvent(QResizeEvent *event);
 
 private:
-    RoundArray<qfloat16> *m_pData;
+    RoundArray<float> *m_pData;
     QChart *m_chart;
     QLineSeries *m_series;
 };

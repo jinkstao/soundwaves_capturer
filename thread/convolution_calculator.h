@@ -2,7 +2,6 @@
 #define ConvolutionCalculator_H
 
 #include <QObject>
-#include <QFloat16>
 #include "roundarray.h"
 #include "calculator.h"
 
@@ -16,25 +15,25 @@ public:
 private:
     int m_nDotCount;
     Calculator *m_pCalculator;
-    qfloat16 *m_gSeqArray;
-    qfloat16 *m_gRealArray;
-    qfloat16 *m_gConvolutionArray;
+    float *m_gSeqArray;
+    float *m_gRealArray;
+    float *m_gConvolutionArray;
     complex *m_gComplexArray;
     complex *m_gMultipleComplexArray;
-    void d2fft(qfloat16 *gSeqArray,
-               qfloat16 *gRealArray,
+    void d2fft(float *gSeqArray,
+               float *gRealArray,
                complex *gComplexArray,
                bool ifft = false);
     void FastConvolute(complex *gComplexArray,
-                       qfloat16 *gConvolutionArray);
-    void NormalConvolute(RoundArray<qfloat16> *result,
-                         RoundArray<qfloat16> *seq1,
-                         RoundArray<qfloat16> *seq2);
+                       float *gConvolutionArray);
+    void NormalConvolute(RoundArray<float> *result,
+                         RoundArray<float> *seq1,
+                         RoundArray<float> *seq2);
 
 public slots:
-    void doWork(RoundArray<qfloat16> *gSeqArray,
-                RoundArray<qfloat16> *gFourierArray,
-                RoundArray<qfloat16> *gConvolutionArray);
+    void doWork(RoundArray<float> *gSeqArray,
+                RoundArray<float> *gFourierArray,
+                RoundArray<float> *gConvolutionArray);
 
 signals:
     void resultReady();

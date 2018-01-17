@@ -18,11 +18,11 @@ MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::MainWindow),
     m_pRefresher(new QTimer(this)),
-    m_gOriginEmitData(new RoundArray<qfloat16>(CALCULATION_DOT_COUNT)),
-    m_gNoiseData(new RoundArray<qfloat16>(CALCULATION_DOT_COUNT)),
-    m_gActualEmitData(new RoundArray<qfloat16>(CALCULATION_DOT_COUNT)),
-    m_gFourierData(new RoundArray<qfloat16>(CALCULATION_DOT_COUNT * 2)),
-    m_gConvolutionData(new RoundArray<qfloat16>(CALCULATION_DOT_COUNT * 2)),
+    m_gOriginEmitData(new RoundArray<float>(CALCULATION_DOT_COUNT)),
+    m_gNoiseData(new RoundArray<float>(CALCULATION_DOT_COUNT)),
+    m_gActualEmitData(new RoundArray<float>(CALCULATION_DOT_COUNT)),
+    m_gFourierData(new RoundArray<float>(CALCULATION_DOT_COUNT * 2)),
+    m_gConvolutionData(new RoundArray<float>(CALCULATION_DOT_COUNT * 2)),
     m_tConvoluteThread(new QThread()),
     m_tMaxCalculateThread(new QThread()),
     m_pCalculator(new ConvolutionCalculator(CALCULATION_DOT_COUNT * 2)),
@@ -80,21 +80,21 @@ MainWindow::~MainWindow()
     m_tConvoluteThread->wait();
 }
 
-qfloat16 MainWindow::OriginEmitFun(qfloat16 x)
+float MainWindow::OriginEmitFun(float x)
 {
-    qfloat16 n = 3 * qSin(x * PI * 2 * BAUD_FREQUENCY);
+    float n = 3 * qSin(x * PI * 2 * BAUD_FREQUENCY);
     return n;
 }
 
-qfloat16 MainWindow::NoiseFun()
+float MainWindow::NoiseFun()
 {
     //qsrand(QTime(0,0,0).secsTo(QTime::currentTime()));
-    return 10.0 * qrand() / (qfloat16)RAND_MAX - 5.0;
+    return 10.0 * qrand() / (float)RAND_MAX - 5.0;
 }
 
-void MainWindow::NormalConvolute(RoundArray<qfloat16> *result,
-                                 RoundArray<qfloat16> *seq1,
-                                 RoundArray<qfloat16> *seq2)
+void MainWindow::NormalConvolute(RoundArray<float> *result,
+                                 RoundArray<float> *seq1,
+                                 RoundArray<float> *seq2)
 {
     int len1 = seq1->size();
     int len2 = seq2->size();
@@ -114,8 +114,8 @@ void MainWindow::NormalConvolute(RoundArray<qfloat16> *result,
 
 void MainWindow::RefreshData()
 {
-    qfloat16 fMaxConvolution;
-    qfloat16 fMinConvolution;
+    float fMaxConvolution;
+    float fMinConvolution;
     for(int i = 0; i < FRAME_DOT_COUNT; ++i)
     {
         // 模拟正弦波形
@@ -124,21 +124,17 @@ void MainWindow::RefreshData()
         {
             m_nRefreshCount = 0;
         }
-        qfloat16 nOriginEmitValue = OriginEmitFun(m_nRefreshCount / SAMPLING_FREQUENCY);
+        float nOriginEmitValue = OriginEmitFun(m_nRefreshCount / SAMPLING_FREQUENCY);
         m_gOriginEmitData->append(nOriginEmitValue);
         ui->chtOriginEmit->appendData(nOriginEmitValue);
-        qfloat16 nNoiseValue = NoiseFun();
+        float nNoiseValue = NoiseFun();
         m_gNoiseData->append(nNoiseValue);
         ui->chtNoise->appendData(nNoiseValue);
-        qfloat16 nActualEmitValue = nOriginEmitValue + nNoiseValue;
+        float nActualEmitValue = nOriginEmitValue + nNoiseValue;
         m_gActualEmitData->append(nActualEmitValue);
         ui->chtActualEmit->appendData(nActualEmitValue);
     }
 
-    for(int i = 0; i < m_gActualEmitData->size(); ++i)
-    {
-        qDebug() << m_gActualEmitData->at(i);
-    }
     emit startCalculate(m_gActualEmitData, m_gFourierData, m_gConvolutionData);
 
     if(m_gConvolutionData->size() != 0)
@@ -149,10 +145,6 @@ void MainWindow::RefreshData()
     ui->chtNoise->refresh();
     ui->chtActualEmit->refresh();
     ui->chtFourier->appendData(m_gFourierData);
-//    for(int i = 0; i < m_gConvolutionData->size(); ++i)
-//    {
-//        qDebug() << m_gConvolutionData->at(i);
-//    }
     ui->chtConvolution->appendData(m_gConvolutionData);
     ui->chtMaxConvolutionEmit->appendData(fMaxConvolution);
     ui->chtMaxConvolutionEmit->refresh();

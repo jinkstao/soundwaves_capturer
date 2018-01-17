@@ -6,15 +6,15 @@ MaxConvolutionCalculator::MaxConvolutionCalculator(QObject *parent) : QObject(pa
 
 }
 
-void MaxConvolutionCalculator::GetMax(RoundArray<qfloat16> *gArray,
-                                      qfloat16 *fMax,
-                                      qfloat16 *fMin)
+void MaxConvolutionCalculator::GetMax(RoundArray<float> *gArray,
+                                      float *fMax,
+                                      float *fMin)
 {
-    qfloat16 fCurMax = gArray->at(0);
-    qfloat16 fCurMin = gArray->at(0);
+    float fCurMax = gArray->at(0);
+    float fCurMin = gArray->at(0);
     for(int i = 0; i < gArray->size(); ++i)
     {
-        qfloat16 fCurValue = gArray->at(i);
+        float fCurValue = gArray->at(i);
         if(fCurValue > fCurMax)
         {
             fCurMax = fCurValue;
@@ -28,9 +28,9 @@ void MaxConvolutionCalculator::GetMax(RoundArray<qfloat16> *gArray,
     *fMin = fCurMin;
 }
 
-void MaxConvolutionCalculator::doWork(RoundArray<qfloat16> *gArray,
-                                      qfloat16 *fMax,
-                                      qfloat16 *fMin)
+void MaxConvolutionCalculator::doWork(RoundArray<float> *gArray,
+                                      float *fMax,
+                                      float *fMin)
 {
     GetMax(gArray, fMax, fMin);
     emit resultReady();

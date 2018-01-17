@@ -6,9 +6,9 @@ ConvolutionCalculator::ConvolutionCalculator(int nDotCount, QObject *parent) : Q
     m_pCalculator(new Calculator(nDotCount))
 {
     m_nDotCount = nDotCount;
-    m_gSeqArray = (qfloat16*)calloc(m_nDotCount, sizeof(qfloat16));
-    m_gRealArray = (qfloat16*)calloc(m_nDotCount, sizeof(qfloat16));
-    m_gConvolutionArray = (qfloat16*)calloc(m_nDotCount, sizeof(qfloat16));
+    m_gSeqArray = (float*)calloc(m_nDotCount, sizeof(float));
+    m_gRealArray = (float*)calloc(m_nDotCount, sizeof(float));
+    m_gConvolutionArray = (float*)calloc(m_nDotCount, sizeof(float));
     m_gComplexArray = (complex*)calloc(m_nDotCount, sizeof(complex));
     m_gMultipleComplexArray = (complex*)calloc(m_nDotCount, sizeof(complex));
 //    complex zeroComplex;
@@ -36,8 +36,8 @@ ConvolutionCalculator::~ConvolutionCalculator()
     m_gMultipleComplexArray = nullptr;
 }
 
-void ConvolutionCalculator::d2fft(qfloat16 *gSeqArray,
-                                  qfloat16 *gRealArray,
+void ConvolutionCalculator::d2fft(float *gSeqArray,
+                                  float *gRealArray,
                                   complex *gComplexArray,
                                   bool ifft)
 {
@@ -45,18 +45,18 @@ void ConvolutionCalculator::d2fft(qfloat16 *gSeqArray,
 }
 
 void ConvolutionCalculator::FastConvolute(complex *gComplexArray,
-                                          qfloat16 *gConvolutionArray)
+                                          float *gConvolutionArray)
 {
     for(int i = 0; i < m_nDotCount; ++i)
     {
-        m_gMultipleComplexArray[i] = gComplexArray[i] * gComplexArray[i];
+        m_pCalculator->ComplexMultiple(gComplexArray + i, gComplexArray + i, m_gMultipleComplexArray + i);
     }
     d2fft(nullptr, gConvolutionArray, m_gMultipleComplexArray, true);
 }
 
-void ConvolutionCalculator::NormalConvolute(RoundArray<qfloat16> *result,
-                                            RoundArray<qfloat16> *seq1,
-                                            RoundArray<qfloat16> *seq2)
+void ConvolutionCalculator::NormalConvolute(RoundArray<float> *result,
+                                            RoundArray<float> *seq1,
+                                            RoundArray<float> *seq2)
 {
     int len1 = seq1->size();
     int len2 = seq2->size();
@@ -74,9 +74,9 @@ void ConvolutionCalculator::NormalConvolute(RoundArray<qfloat16> *result,
     }
 }
 
-void ConvolutionCalculator::doWork(RoundArray<qfloat16> *gSeqArray,
-                                   RoundArray<qfloat16> *gFourierArray,
-                                   RoundArray<qfloat16> *gConvolutionArray)
+void ConvolutionCalculator::doWork(RoundArray<float> *gSeqArray,
+                                   RoundArray<float> *gFourierArray,
+                                   RoundArray<float> *gConvolutionArray)
 {
     for(int i = 0; i < m_nDotCount; ++i)
     {

@@ -4,7 +4,6 @@
 #include <QTimer>
 #include <QList>
 #include <QLinkedList>
-#include <QFloat16>
 #include <QThread>
 #include <QMainWindow>
 #include "calculator.h"
@@ -29,30 +28,30 @@ private:
     Ui::MainWindow *ui;
     QTimer *m_pRefresher;
     int m_nRefreshCount = 0;
-    RoundArray<qfloat16> *m_gOriginEmitData;
-    RoundArray<qfloat16> *m_gNoiseData;
-    RoundArray<qfloat16> *m_gActualEmitData;
-    RoundArray<qfloat16> *m_gFourierData;
-    RoundArray<qfloat16> *m_gConvolutionData;
+    RoundArray<float> *m_gOriginEmitData;
+    RoundArray<float> *m_gNoiseData;
+    RoundArray<float> *m_gActualEmitData;
+    RoundArray<float> *m_gFourierData;
+    RoundArray<float> *m_gConvolutionData;
     QThread *m_tConvoluteThread;
     QThread *m_tMaxCalculateThread;
     ConvolutionCalculator *m_pCalculator;
     MaxConvolutionCalculator *m_pMaxCalculator;
-    qfloat16 OriginEmitFun(qfloat16 x);
-    qfloat16 NoiseFun();
+    float OriginEmitFun(float x);
+    float NoiseFun();
 
-    void NormalConvolute(RoundArray<qfloat16>*, RoundArray<qfloat16>*, RoundArray<qfloat16>*);
+    void NormalConvolute(RoundArray<float>*, RoundArray<float>*, RoundArray<float>*);
 
 private slots:
     void RefreshData();
 
 signals:
-    void startCalculate(RoundArray<qfloat16> *gSeqArray,
-                        RoundArray<qfloat16> *gFourierArray,
-                        RoundArray<qfloat16> *gConvolutionArray);
-    void startMaxCalculate(RoundArray<qfloat16> *gArray,
-                           qfloat16 *fMax,
-                           qfloat16 *fMin);
+    void startCalculate(RoundArray<float> *gSeqArray,
+                        RoundArray<float> *gFourierArray,
+                        RoundArray<float> *gConvolutionArray);
+    void startMaxCalculate(RoundArray<float> *gArray,
+                           float *fMax,
+                           float *fMin);
 };
 
 #endif // MAINWINDOW_H

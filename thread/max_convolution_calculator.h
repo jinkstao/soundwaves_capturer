@@ -2,7 +2,6 @@
 #define MAX_CONVOLUTION_CALCULATOR_H
 
 #include <QObject>
-#include <QFloat16>
 #include "roundarray.h"
 
 class MaxConvolutionCalculator : public QObject
@@ -13,14 +12,14 @@ public:
     MaxConvolutionCalculator(QObject *parent = nullptr);
 
 private:
-    void GetMax(RoundArray<qfloat16> *gArray,
-                qfloat16 *fMax,
-                qfloat16 *fMin);
+    void GetMax(RoundArray<float> *gArray,
+                float *fMax,
+                float *fMin);
 
 public slots:
-    void doWork(RoundArray<qfloat16> *gArray,
-                qfloat16 *fMax,
-                qfloat16 *fMin);
+    void doWork(RoundArray<float> *gArray,
+                float *fMax,
+                float *fMin);
 
 signals:
     void resultReady();

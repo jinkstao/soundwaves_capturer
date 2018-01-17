@@ -40,7 +40,7 @@
 
 View::View(QWidget *parent)
     : QGraphicsView(new QGraphicsScene, parent),
-      m_pData(new RoundArray<qfloat16>((int)(AXISX_MAX_RANGE * SAMPLING_FREQUENCY))),
+      m_pData(new RoundArray<float>((int)(AXISX_MAX_RANGE * SAMPLING_FREQUENCY))),
       m_chart(0),
       m_series(new QLineSeries(this))
 {
@@ -92,7 +92,7 @@ QLineSeries *View::series()
     return m_series;
 }
 
-void View::appendData(qfloat16 value)
+void View::appendData(float value)
 {
     m_pData->append(value);
 //    if(m_pData->size() > MAX_RANGE)
@@ -101,7 +101,7 @@ void View::appendData(qfloat16 value)
 //    }
 }
 
-void View::appendData(RoundArray<qfloat16> *values)
+void View::appendData(RoundArray<float> *values)
 {
     m_series->clear();
     for(int i = 0; i < SAMPLING_DOT_COUNT * 2; ++i) {

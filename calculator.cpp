@@ -7,9 +7,6 @@ Calculator::Calculator(int nTotalCount)
     m_nLevel = (int)(qLn(m_nTotalCount) / qLn(2));
     m_nMapValue = 4 * SIN_TABLE_SIZE / m_nTotalCount;
     CreateTable();
-    complex zeroComplex;
-    zeroComplex.real = 0.0f;
-    zeroComplex.imag = 0.0f;
     m_gWList = (complex*)calloc(m_nTotalCount / 2, sizeof(complex));
     m_gTempList = (complex*)calloc(m_nTotalCount, sizeof(complex));
 }
@@ -24,7 +21,7 @@ Calculator::~Calculator()
 
 void Calculator::CreateTable()
 {
-    qfloat16 t;
+    float t;
     for (int i = 0; i < SIN_TABLE_SIZE; i++)
     {
         t = i * PI / 2.0 / SIN_TABLE_SIZE;
@@ -32,7 +29,7 @@ void Calculator::CreateTable()
     }
 }
 
-qfloat16 Calculator::m_fSin(int t)
+float Calculator::m_fSin(int t)
 {
     int u;
     if (t == -SIN_TABLE_SIZE)
@@ -50,7 +47,7 @@ qfloat16 Calculator::m_fSin(int t)
     return -m_gSinTable[u];
 }
 
-qfloat16 Calculator::m_fCos(int t)
+float Calculator::m_fCos(int t)
 {
     int u, sign;
     if (t == 0)
@@ -71,8 +68,26 @@ qfloat16 Calculator::m_fCos(int t)
     return sign * m_gSinTable[u];
 }
 
-void Calculator::d2fft(qfloat16 *gSeqArray,
-                       qfloat16 *gRealArray,
+void Calculator::ComplexAdd(complex *complex1, complex *complex2, complex *res)
+{
+    res->real = complex1->real + complex2->real;
+    res->imag = complex1->imag + complex2->imag;
+}
+
+void Calculator::ComplexMinus(complex *complex1, complex *complex2, complex *res)
+{
+    res->real = complex1->real - complex2->real;
+    res->imag = complex1->imag - complex2->imag;
+}
+
+void Calculator::ComplexMultiple(complex *complex1, complex *complex2, complex *res)
+{
+    res->real = complex1->real * complex2->real - complex1->imag * complex2->imag;
+    res->imag = complex1->real * complex2->imag + complex1->imag * complex2->real;
+}
+
+void Calculator::d2fft(float *gSeqArray,
+                       float *gRealArray,
                        complex *gComplexArray,
                        bool ifft)
 {
@@ -85,7 +100,8 @@ void Calculator::d2fft(qfloat16 *gSeqArray,
     {
         if (ifft)
         {
-            m_gTempList[i] = gComplexArray[i];
+            m_gTempList[i].real = gComplexArray[i].real;
+            m_gTempList[i].imag = gComplexArray[i].imag;
         }
         else
         {
@@ -113,9 +129,9 @@ void Calculator::d2fft(qfloat16 *gSeqArray,
             gap = j * halfN;
             for (k = 0; k < halfN / 2; k++)
             {
-                gComplexArray[k + gap] = m_gTempList[k + gap] + m_gTempList[k + gap + halfN / 2];
-                tmp_c = m_gTempList[k + gap] - m_gTempList[k + gap + halfN / 2];
-                gComplexArray[k + gap + halfN / 2] = tmp_c * m_gWList[k * interval];
+                ComplexAdd(m_gTempList + k + gap, m_gTempList + k + gap + halfN / 2, gComplexArray + k + gap);
+                ComplexMinus(m_gTempList + k + gap, m_gTempList + k + gap + halfN / 2, &tmp_c);
+                ComplexMultiple(&tmp_c, m_gWList + k * interval, gComplexArray + k + gap + halfN / 2);
             }
         }
         // copy result to input
@@ -138,6 +154,7 @@ void Calculator::d2fft(qfloat16 *gSeqArray,
         }
         gComplexArray[rev] = m_gTempList[i];
     }
+
     if(gRealArray != nullptr)
     {
         if (ifft)
