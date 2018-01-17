@@ -29,14 +29,16 @@ SOURCES += \
     chart/view.cpp \
     roundarray.cpp \
     thread/convolution_calculator.cpp \
-    thread/max_convolution_calculator.cpp
+    thread/max_convolution_calculator.cpp \
+    calculator.cpp
 
 HEADERS += \
         mainwindow.h \
     chart/view.h \
     roundarray.h \
     thread/convolution_calculator.h \
-    thread/max_convolution_calculator.h
+    thread/max_convolution_calculator.h \
+    calculator.h
 
 FORMS += \
         mainwindow.ui

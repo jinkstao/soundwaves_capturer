@@ -7,6 +7,7 @@
 #include <QFloat16>
 #include <QThread>
 #include <QMainWindow>
+#include "calculator.h"
 #include "chart/view.h"
 #include "roundarray.h"
 #include "thread/convolution_calculator.h"
@@ -31,8 +32,8 @@ private:
     RoundArray<qfloat16> *m_gOriginEmitData;
     RoundArray<qfloat16> *m_gNoiseData;
     RoundArray<qfloat16> *m_gActualEmitData;
+    RoundArray<qfloat16> *m_gFourierData;
     RoundArray<qfloat16> *m_gConvolutionData;
-    RoundArray<qfloat16> *m_gConvolutionDrawData;
     QThread *m_tConvoluteThread;
     QThread *m_tMaxCalculateThread;
     ConvolutionCalculator *m_pCalculator;
@@ -44,12 +45,11 @@ private:
 
 private slots:
     void RefreshData();
-    void CopyConvolutionData();
 
 signals:
-    void startCalculate(RoundArray<qfloat16>*,
-                        RoundArray<qfloat16>*,
-                        RoundArray<qfloat16>*);
+    void startCalculate(RoundArray<qfloat16> *gSeqArray,
+                        RoundArray<qfloat16> *gFourierArray,
+                        RoundArray<qfloat16> *gConvolutionArray);
     void startMaxCalculate(RoundArray<qfloat16> *gArray,
                            qfloat16 *fMax,
                            qfloat16 *fMin);

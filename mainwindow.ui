@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>831</width>
+    <width>1249</width>
     <height>828</height>
    </rect>
   </property>
@@ -37,8 +37,8 @@
    <widget class="View" name="chtActualEmit">
     <property name="geometry">
      <rect>
-      <x>10</x>
-      <y>280</y>
+      <x>830</x>
+      <y>10</y>
       <width>401</width>
       <height>261</height>
      </rect>
@@ -57,8 +57,18 @@
    <widget class="View" name="chtMaxConvolutionEmit">
     <property name="geometry">
      <rect>
+      <x>830</x>
+      <y>280</y>
+      <width>401</width>
+      <height>261</height>
+     </rect>
+    </property>
+   </widget>
+   <widget class="View" name="chtFourier">
+    <property name="geometry">
+     <rect>
       <x>10</x>
-      <y>550</y>
+      <y>280</y>
       <width>401</width>
       <height>261</height>
      </rect>

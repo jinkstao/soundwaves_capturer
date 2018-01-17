@@ -104,7 +104,7 @@ void View::appendData(qfloat16 value)
 void View::appendData(RoundArray<qfloat16> *values)
 {
     m_series->clear();
-    for(int i = 0; i < SAMPLING_DOT_COUNT * 2 - 1; ++i) {
+    for(int i = 0; i < SAMPLING_DOT_COUNT * 2; ++i) {
         if(values->size() > i)
         {
             m_series->append(i / SAMPLING_FREQUENCY, values->at(values->size() - i - 1));
